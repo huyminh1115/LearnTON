@@ -7,6 +7,33 @@
 -   `tests` - tests for the contracts.
 -   `scripts` - scripts used by the project, mainly the deployment scripts.
 
+## Contract
+
+## Staking
+
+This is the main contract, store all system data:
+
+-   endTime: Distribute reward until this timestamp
+-   systemIndex: System index
+-   totalStaked: Total staked in the system
+-   rewardPerSecond: Reward per second
+-   lastUpdateTimeStamp: Last update timestamp
+
+## Staker
+
+Each staker will have this contract, store value of user staking data:
+
+-   owner: staker address
+-   staked: staked amount
+-   userIndex: user index
+-   unclaimedReward: unclaimed reward
+
+## Flow
+
+All flow start from Staking contract then update at Staker contract
+
+User -> StakingContract -> StakerContract
+
 ## How to use
 
 ### Build
@@ -24,3 +51,8 @@
 ### Add a new contract
 
 `npx blueprint create ContractName` or `yarn blueprint create ContractName`
+
+## Todo
+
+Current work with happy case
+Still haven't implement error case (having bounce function)

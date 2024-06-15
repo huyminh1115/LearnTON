@@ -19,9 +19,7 @@ contract Staker with Deployable {
 
     receive(msg: UpdateStakeInternal) {
         require(sender() == self.stakingContract, "Admin contract only");
-    
         self.updateStaker(msg.systemIndex);
-
         self.staked = self.staked + msg.stakeAmount;
     }
 
@@ -48,15 +46,15 @@ contract Staker with Deployable {
     
         self.updateStaker(msg.systemIndex);
 
-        require(self.unclaimedReward > msg.claimAmount, "Invalid reward");
+        require(self.unclaimedReward >= msg.claimAmount, "Invalid reward");
 
-        self.unclaimedReward = 0;
-
+        self.unclaimedReward = self.unclaimedReward - msg.claimAmount;
+        
         send(SendParameters{
             to: self.owner,
             bounce: false,
             value: 0,
-            mode: SendRemainingValue + SendIgnoreErrors // full amount form staking contract
+            mode: SendRemainingValue + SendIgnoreErrors // all value form message from staking contract
         });
     }
 
@@ -73,6 +71,14 @@ contract Staker with Deployable {
 
     get fun balance(): String {
         return myBalance().toCoinsString();
+    }
+
+    get fun stakerData(): StakerData{
+        return StakerData{
+            staked: self.staked,
+            userIndex: self.userIndex,
+            unclaimedReward: self.unclaimedReward,
+        };
     }
 
     get fun userReward(systemIndex: Int): String {

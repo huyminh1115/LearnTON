@@ -11,12 +11,12 @@ contract Staking with Deployable, Ownable {
     endTime: Int as uint64;
     owner: Address;
 
-    init(rewardPerSecond: Int) {
+    init() {
         self.owner = sender();
         self.totalStaked = 0;
         self.systemIndex = 0;
         self.lastUpdateTimeStamp = 0;
-        self.rewardPerSecond = rewardPerSecond;
+        self.rewardPerSecond = 0;
         self.endTime = 0;
     }
 
@@ -45,7 +45,7 @@ contract Staking with Deployable, Ownable {
         send(SendParameters{
             to: stakerAddress, 
             value: 0, 
-            bounce: true,
+            bounce: false,
             mode: SendRemainingValue, // staker contract will hold staking amount
             body: UpdateStakeInternal{ 
                 stakeAmount: msg.amount,
@@ -89,11 +89,10 @@ contract Staking with Deployable, Ownable {
 
         let ctx: Context = context(); // get sender Info
         
-        // Create message
-        let init: StateInit = initOf Staker(myAddress(), sender());
-
         require(myBalance() > msg.amount + minTonsForStorage, "Not enough money");
         
+        // Create message
+        let init: StateInit = initOf Staker(myAddress(), sender());
         let stakerAddress: Address = contractAddress(init);
 
         send(SendParameters{
@@ -112,25 +111,39 @@ contract Staking with Deployable, Ownable {
 
     fun updateSystemIndex() {
         if(self.rewardPerSecond > 0 && self.totalStaked > 0){
-            let oldSystemIndex: Int = self.systemIndex;
-            self.systemIndex = oldSystemIndex + self.rewardPerSecond * PADDING * (now() - self.lastUpdateTimeStamp)/ self.totalStaked;
-            self.lastUpdateTimeStamp = now();
+            self.systemIndex = self.getSystemIndex();
         }
+        self.lastUpdateTimeStamp = now();
+    }
+
+    fun getSystemIndex(): Int {
+        let newSystemIndex: Int = self.systemIndex;
+        if(self.rewardPerSecond > 0 && self.totalStaked > 0){
+            newSystemIndex = newSystemIndex + self.rewardPerSecond * PADDING * (now() - self.lastUpdateTimeStamp) / self.totalStaked;
+        }
+        return newSystemIndex;
     }
 
     get fun systemData(): SystemData{
+        let newSystemIndex: Int = self.getSystemIndex();
         return SystemData{
             totalStaked: self.totalStaked,
-            systemIndex: self.systemIndex,
+            systemIndex: newSystemIndex,
             lastUpdateTimeStamp: self.lastUpdateTimeStamp,
             rewardPerSecond: self.rewardPerSecond,
             endTime: self.endTime,
-            };
+        };
     }
 
     get fun balance(): String {
         return myBalance().toCoinsString();
     }
+
+    get fun stakerAddress(staker: Address): Address {
+        let init: StateInit = initOf Staker(myAddress(), staker);
+        return contractAddress(init);
+    }
+
 
     // accept incoming TON transfers
     receive() {

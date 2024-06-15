@@ -43,6 +43,12 @@ struct SystemData{
     endTime: Int;
 }
 
+struct StakerData{
+    staked: Int;
+    userIndex: Int;
+    unclaimedReward: Int;
+}
+
 message Stake {
     amount: Int as coins;
 }
