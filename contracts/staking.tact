@@ -45,14 +45,31 @@ contract Staking with Deployable, Ownable {
         send(SendParameters{
             to: stakerAddress, 
             value: 0, 
-            bounce: false,
+            bounce: true,
             mode: SendRemainingValue, // staker contract will hold staking amount
             body: UpdateStakeInternal{ 
                 stakeAmount: msg.amount,
                 systemIndex: self.systemIndex,
+                sender: sender(),
             }.toCell(),
             code: init.code,
             data: init.data
+        });
+    }
+
+    bounced(src: bounced<UpdateStakeInternal>){
+        // Update total staked
+        self.totalStaked = self.totalStaked - src.stakeAmount;
+
+        // let ctx: Context = context(); // get sender Info
+        // let sender: Address = ctx.sender;
+
+        // refund stake TON
+        send(SendParameters{
+            to: src.sender,
+            value: 0,
+            bounce: false,
+            mode: SendRemainingValue | SendIgnoreErrors,
         });
     }
 
@@ -82,6 +99,11 @@ contract Staking with Deployable, Ownable {
             code: init.code,
             data: init.data
         });
+    }
+
+    bounced(src: UpdateUnstakeInternal){
+        // Update total staked
+        self.totalStaked = self.totalStaked + src.unstakeAmount;
     }
 
     receive(msg: ClaimReward) {

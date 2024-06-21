@@ -53,6 +53,9 @@ message Stake {
     amount: Int as coins;
 }
 
+message Pause {
+}
+
 message Unstake {
     amount: Int as coins;
 }
@@ -64,6 +67,7 @@ message ClaimReward {
 message UpdateStakeInternal {
     stakeAmount: Int as coins;
     systemIndex: Int as uint64;
+    sender: Address;
 }
 
 message UpdateUnstakeInternal {

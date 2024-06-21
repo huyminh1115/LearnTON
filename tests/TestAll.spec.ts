@@ -108,7 +108,7 @@ describe('Staking', () => {
     });
 
     it('increase time check systemIndex: 10s', async () => {
-        await sleep(10000);
+        await sleep(9800); // 9.8s
         const systemData = await stakingContract.getSystemData();
         const systemIndex = systemData.systemIndex;
 
@@ -179,5 +179,23 @@ describe('Staking', () => {
         // console.log('stakerData:  ', stakerData);
         const systemData = await stakingContract.getSystemData();
         // console.log('systemData:  ', systemData);
+    });
+
+    it('Pause to test revert case: ', async () => {
+        const txResult = await stakerContract.send(
+            staker.getSender(),
+            {
+                value: toNano('0.2'),
+            },
+            {
+                $$type: 'Pause',
+            },
+        );
+
+        expect(txResult.transactions).toHaveTransaction({
+            from: staker.address,
+            to: stakingContract.address,
+            success: true,
+        });
     });
 });

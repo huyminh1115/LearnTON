@@ -7,6 +7,7 @@ contract Staker with Deployable {
     userIndex: Int as uint64;
     unclaimedReward: Int as coins;
     staked: Int as coins;
+    paused: Bool;
 
     init(stakingContract: Address, owner: Address) {
         self.stakingContract = stakingContract;
@@ -14,16 +15,22 @@ contract Staker with Deployable {
         self.staked = 0;
         self.unclaimedReward = 0;
         self.userIndex = 0;
+        self.paused = false;
     }
 
+    receive(msg: Pause) {
+        self.paused = !self.paused;
+    }
 
     receive(msg: UpdateStakeInternal) {
+        require(!self.paused, "Paused!");
         require(sender() == self.stakingContract, "Admin contract only");
         self.updateStaker(msg.systemIndex);
         self.staked = self.staked + msg.stakeAmount;
     }
 
     receive(msg: UpdateUnstakeInternal) {
+        require(!self.paused, "Paused!");
         require(sender() == self.stakingContract, "Admin contract only");
     
         self.updateStaker(msg.systemIndex);
