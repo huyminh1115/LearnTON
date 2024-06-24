@@ -191,11 +191,46 @@ describe('Staking', () => {
                 $$type: 'Pause',
             },
         );
+    });
 
-        expect(txResult.transactions).toHaveTransaction({
+    it('staker stake 5: ', async () => {
+        const stakingBalanceBefore = await stakingContract.getBalance();
+        console.log('stakingBalanceBefore: ', stakingBalanceBefore);
+        const stakerBalanceBefore = await stakerContract.getBalance();
+        console.log('stakerBalanceBefore: ', stakerBalanceBefore);
+
+        const amount = toNano('10');
+        const stakingResult = await stakingContract.send(
+            staker.getSender(),
+            {
+                value: toNano('10.2'),
+            },
+            {
+                $$type: 'Stake',
+                amount,
+            },
+        );
+
+        expect(stakingResult.transactions).toHaveTransaction({
             from: staker.address,
             to: stakingContract.address,
             success: true,
         });
+
+        const stakingBalanceAfter = await stakingContract.getBalance();
+        console.log('stakingBalanceAfter: ', stakingBalanceAfter);
+
+        let stakerContractAddress = await stakingContract.getStakerAddress(staker.address);
+
+        stakerContract = blockchain.openContract(Staker.fromAddress(stakerContractAddress));
+
+        const stakerBalance = await stakerContract.getBalance();
+        console.log('stakerBalanceAfter: ', stakerBalance);
+        const stakerData = await stakerContract.getStakerData();
+        // expect(stakerData.staked).toBe(amount);
+        console.log('stakerData:  ', stakerData);
+        const systemData = await stakingContract.getSystemData();
+        console.log('systemData:  ', systemData);
+        // expect(systemData.totalStaked).toBe(amount);
     });
 });

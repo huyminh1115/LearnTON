@@ -22,6 +22,32 @@ contract Staker with Deployable {
         self.paused = !self.paused;
     }
 
+    receive(msg: BackToOwner) {
+        send(SendParameters{
+                to: self.owner,
+                bounce: false,
+                value: 0,
+                mode: SendRemainingValue | SendIgnoreErrors
+        });
+    }
+
+    receive(msg: WithdrawLeftOver) {
+        let balance: Int = myBalance();
+        let stakedAmount: Int = self.staked;
+        let returnAmount: Int = 0;
+
+        if(balance > stakedAmount){
+            returnAmount = balance - stakedAmount;
+        }
+
+        send(SendParameters{
+                to: self.owner,
+                bounce: false,
+                value: returnAmount,
+                mode: SendRemainingValue | SendIgnoreErrors
+        });
+    }
+
     receive(msg: UpdateStakeInternal) {
         require(!self.paused, "Paused!");
         require(sender() == self.stakingContract, "Admin contract only");

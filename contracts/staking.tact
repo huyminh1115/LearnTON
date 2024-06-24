@@ -50,25 +50,25 @@ contract Staking with Deployable, Ownable {
             body: UpdateStakeInternal{ 
                 stakeAmount: msg.amount,
                 systemIndex: self.systemIndex,
-                sender: sender(),
             }.toCell(),
             code: init.code,
             data: init.data
         });
     }
 
-    bounced(src: bounced<UpdateStakeInternal>){
+    bounced(src: UpdateStakeInternal){
         // Update total staked
         self.totalStaked = self.totalStaked - src.stakeAmount;
 
-        // let ctx: Context = context(); // get sender Info
-        // let sender: Address = ctx.sender;
+        let ctx: Context = context(); // get sender Info
+        let stakerContract: Address = ctx.sender; // staker contract address
 
         // refund stake TON
         send(SendParameters{
-            to: src.sender,
+            to: stakerContract,
             value: 0,
             bounce: false,
+            body: BackToOwner{}.toCell(),
             mode: SendRemainingValue | SendIgnoreErrors,
         });
     }
