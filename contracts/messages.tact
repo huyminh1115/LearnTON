@@ -1,5 +1,6 @@
 struct SystemData{
     totalStaked: Int;
+    totalClaimed: Int;
     systemIndex: Int;
     lastUpdateTimeStamp: Int;
     rewardPerSecond: Int;

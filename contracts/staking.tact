@@ -5,6 +5,7 @@ import "./staker";
 
 contract Staking with Deployable, Ownable {
     totalStaked: Int as coins;
+    totalClaimed: Int as coins;
     systemIndex: Int as uint64;
     lastUpdateTimeStamp: Int as uint64;
     rewardPerSecond: Int as uint64;
@@ -18,6 +19,7 @@ contract Staking with Deployable, Ownable {
         self.lastUpdateTimeStamp = 0;
         self.rewardPerSecond = 0;
         self.endTime = 0;
+        self.totalClaimed = 0;
     }
 
     receive(msg: Setting) {
@@ -117,6 +119,9 @@ contract Staking with Deployable, Ownable {
         let init: StateInit = initOf Staker(myAddress(), sender());
         let stakerAddress: Address = contractAddress(init);
 
+        // Update total claimed
+        self.totalClaimed = self.totalClaimed + msg.amount;
+
         send(SendParameters{
             to: stakerAddress, 
             value: msg.amount, 
@@ -130,6 +135,12 @@ contract Staking with Deployable, Ownable {
             data: init.data
         });
     }
+
+    bounced(src: UpdateClaimInternal){
+        // Update total staked
+        self.totalClaimed = self.totalClaimed - src.claimAmount;
+    }
+
 
     fun updateSystemIndex() {
         if(self.rewardPerSecond > 0 && self.totalStaked > 0){
@@ -150,6 +161,7 @@ contract Staking with Deployable, Ownable {
         let newSystemIndex: Int = self.getSystemIndex();
         return SystemData{
             totalStaked: self.totalStaked,
+            totalClaimed: self.totalClaimed,
             systemIndex: newSystemIndex,
             lastUpdateTimeStamp: self.lastUpdateTimeStamp,
             rewardPerSecond: self.rewardPerSecond,
