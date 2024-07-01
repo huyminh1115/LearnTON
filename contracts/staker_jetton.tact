@@ -1,7 +1,7 @@
 import "@stdlib/deploy";
-import "./messages";
+import "./messages_stake_jetton";
 
-contract Staker with Deployable {
+contract StakerJetton with Deployable {
     stakingContract: Address;
     owner: Address;
     userIndex: Int as uint64;

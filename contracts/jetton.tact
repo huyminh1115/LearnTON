@@ -1,7 +1,10 @@
 import "@stdlib/ownable";
-import "./messages";
+import "@stdlib/deploy";
+import "./messages_jetton";
+import "./jetton_default_wallet";
 
-@interface("org.ton.jetton.master")
+
+// @interface("org.ton.jetton.master")
 trait Jetton with Ownable {
 
     //
@@ -48,33 +51,11 @@ trait Jetton with Ownable {
         }
     }
 
-
-    //
-    // Get Methods
-    //
-
-    get fun get_wallet_address(owner: Address): Address {
-        let winit: StateInit = self.getJettonWalletInit(owner);
-        return contractAddress(winit);
-    }
-
-    get fun get_jetton_data(): JettonData {
-        let code: Cell = self.getJettonWalletInit(myAddress()).code;
-        return JettonData{ 
-            totalSupply: self.totalSupply, 
-            mintable: self.mintable, 
-            owner: self.owner, 
-            content: self.content, 
-            walletCode: code
-        };
-    }
-
     //
     // Private Methods
     //
 
     fun mint(to: Address, amount: Int, responseAddress: Address?) {
-
         // Update total supply
         self.totalSupply = self.totalSupply + amount;
 
@@ -105,7 +86,28 @@ trait Jetton with Ownable {
         require(contractAddress(winit) == ctx.sender, "Invalid sender");
     }
 
-    virtual fun getJettonWalletInit(address: Address): StateInit {
+    fun getJettonWalletInit(address: Address): StateInit {
         return initOf JettonDefaultWallet(myAddress(), address);
+    }
+
+
+    //
+    // Get Methods
+    //
+
+    get fun get_wallet_address(owner: Address): Address {
+        let winit: StateInit = self.getJettonWalletInit(owner);
+        return contractAddress(winit);
+    }
+
+    get fun get_jetton_data(): JettonData {
+        let code: Cell = self.getJettonWalletInit(myAddress()).code;
+        return JettonData{ 
+            totalSupply: self.totalSupply, 
+            mintable: self.mintable, 
+            owner: self.owner, 
+            content: self.content, 
+            walletCode: code
+        };
     }
 }

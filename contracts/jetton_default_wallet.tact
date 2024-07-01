@@ -1,7 +1,7 @@
 import "@stdlib/ownable";
-import "./messages";
+import "./messages_jetton";
 
-@interface("org.ton.jetton.wallet")
+// @interface("org.ton.jetton.wallet")
 contract JettonDefaultWallet {
 
     const minTonsForStorage: Int = ton("0.01");

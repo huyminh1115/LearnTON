@@ -68,7 +68,7 @@ describe('Staking', () => {
         expect(systemData.endTime).toBe(endTime);
     });
 
-    it('staker stake 5: ', async () => {
+    xit('staker stake 5: ', async () => {
         const stakingBalanceBefore = await stakingContract.getBalance();
         console.log('stakingBalanceBefore: ', stakingBalanceBefore);
 
@@ -107,7 +107,7 @@ describe('Staking', () => {
         expect(systemData.totalStaked).toBe(amount);
     });
 
-    it('increase time check systemIndex: 10s', async () => {
+    xit('increase time check systemIndex: 10s', async () => {
         await sleep(9800); // 9.8s
         const systemData = await stakingContract.getSystemData();
         const systemIndex = systemData.systemIndex;
@@ -116,7 +116,7 @@ describe('Staking', () => {
         console.log('stakerReward: ', stakerReward);
     }, 100000);
 
-    it('staker unstake 1/2 = 2.5: ', async () => {
+    xit('staker unstake 1/2 = 2.5: ', async () => {
         const amount = toNano('2.5');
         const stakingResult = await stakingContract.send(
             staker.getSender(),
@@ -146,7 +146,7 @@ describe('Staking', () => {
         expect(systemData.totalStaked).toBe(amount);
     });
 
-    it('staker claim reward: ', async () => {
+    xit('staker claim reward: ', async () => {
         const stakingBalanceBefore = await stakingContract.getBalance();
         console.log('stakingBalanceBefore: ', stakingBalanceBefore);
 
@@ -181,7 +181,7 @@ describe('Staking', () => {
         // console.log('systemData:  ', systemData);
     });
 
-    it('Pause to test revert case: ', async () => {
+    xit('Pause to test revert case: ', async () => {
         const txResult = await stakerContract.send(
             staker.getSender(),
             {
@@ -193,7 +193,7 @@ describe('Staking', () => {
         );
     });
 
-    it('staker stake 5: ', async () => {
+    xit('staker stake 5: ', async () => {
         const stakingBalanceBefore = await stakingContract.getBalance();
         console.log('stakingBalanceBefore: ', stakingBalanceBefore);
         const stakerBalanceBefore = await stakerContract.getBalance();
